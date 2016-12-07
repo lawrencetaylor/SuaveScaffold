@@ -1,0 +1,7 @@
+source https://www.nuget.org/api/v2
+
+nuget Fake
+nuget Suave
+nuget Suave.Swagger
+
+gist lawrencetaylor/83b628466ac9a2cf77c22efff7d2be90 compile.fs
