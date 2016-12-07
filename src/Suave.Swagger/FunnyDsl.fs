@@ -70,11 +70,22 @@ module FunnyDsl =
     >> consumes "application/json"
     >> consumes "application/xml"
 
+  let getModelTypes (t: Type) = 
+    (match t.GetEnumeratedType with
+    | Some et -> et
+    | None -> 
+      match t.GetOptionalType with
+      | Some ot -> ot
+      | None -> t)
+    |> TypeHelpers.getChildTypes
+    |> List.filter(fun t -> not (t.IsGenericType))
+
   let addResponse (statusCode:int) (desc:string) (modelType:Type option) (route:DocBuildState) =
     let s,rs = 
       match modelType with
       | Some ty -> 
-        let v1 = { route with Models=(ty :: route.Models) }
+        let typeModels = getModelTypes ty
+        let v1 = { route with Models=route.Models |> List.append typeModels}
         let v2 = { Description=desc; Schema=Some(ty.Describes()) }
         v1,v2
       | None -> 
@@ -118,10 +129,14 @@ module FunnyDsl =
   let patchOf w = documentVerb w Patch
     
   let parameter (name:string) _ (route:DocBuildState) (f:ParamDescriptor->ParamDescriptor) =
-    let p = name |> ParamDescriptor.Named |> f
+    let pStart = name |> ParamDescriptor.Named |> f
+    let p =
+      match pStart.Type with 
+      | None -> pStart
+      | Some t -> { pStart with Required = t.GetOptionalType |> Option.isNone}
     let m = 
       match p.Type with
-      | Some t -> t :: route.Models
+      | Some t -> route.Models |> List.append (getModelTypes t)
       | None -> route.Models
     { route with Models = m}.Documents(fun doc -> { doc with Params = (p :: doc.Params) })
 

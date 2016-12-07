@@ -1,5 +1,10 @@
 ﻿namespace Suave.Swagger
 
+type SwaggerTypeAttribute() =
+  inherit System.Attribute()
+
+  member val Name = Unchecked.defaultof<string> with get,set
+
 module Swagger =
 
   open System
@@ -264,14 +269,22 @@ module Swagger =
   and PropertyDefinition =
     | Primitive of Type:string*Format:string
     | Ref of ObjectDefinition
+    | Array of PropertyDefinition
+    | Maybe of PropertyDefinition
     member __.ToJObject() : JObject =
       let v = JObject()
-      match __ with
-      | Primitive (t,f) ->
-          v.Add("type", JToken.FromObject t)
-          v.Add("format", JToken.FromObject f)
-      | Ref ref ->
-          v.Add("$ref", JToken.FromObject <| sprintf "#/definitions/%s" ref.Id)
+      let rec innerToJObject x = 
+        match x with
+        | Primitive (t,f) ->
+            v.Add("type", JToken.FromObject t)
+            v.Add("format", JToken.FromObject f)
+        | Ref ref ->
+            v.Add("$ref", JToken.FromObject <| sprintf "#/definitions/%s" ref.Id)
+        | Array prop -> 
+            v.Add("type", JToken.FromObject "array")
+            v.Add("items", prop.ToJObject())
+        | Maybe prop -> innerToJObject prop
+      innerToJObject __
       v
     member __.ToJson() : string =
       __.ToJObject().ToString()
@@ -316,50 +329,110 @@ module Swagger =
       //settings.Converters.Add(new ParamDescriptorConverter())
       JsonConvert.SerializeObject(__, settings)
 
-   module TypeHelpers =
-        //http://swagger.io/specification/ -> Data Types
-        let typeFormatsNames = 
-            [
-              typeof<string>, ("string", "string")
-              typeof<int8>, ("integer", "int8")
-              typeof<int16>, ("integer", "int16")
-              typeof<int32>, ("integer", "int32")
-              typeof<int64>, ("integer", "int64")
-              typeof<bool>, ("boolean", "")
-              typeof<float>, ("float", "float32")
-              typeof<float32>, ("float", "float32")
-              typeof<uint8>, ("integer", "int8")
-              typeof<uint16>, ("integer", "int16")
-              typeof<uint32>, ("integer", "int32")
-              typeof<uint64>, ("integer", "int64")
-              typeof<DateTime>, ("string", "date-time")
-              typeof<byte array>, ("string", "binary")
-              typeof<byte list>, ("string", "binary")
-              typeof<byte seq>, ("string", "binary")
-              typeof<byte>, ("string", "byte")
-            ] |> dict
+  module TypeHelpers =
+    //http://swagger.io/specification/ -> Data Types
+    let typeFormatsNames = 
+        [
+          typeof<string>, ("string", "string")
+          typeof<int8>, ("integer", "int8")
+          typeof<int16>, ("integer", "int16")
+          typeof<int32>, ("integer", "int32")
+          typeof<int64>, ("integer", "int64")
+          typeof<bool>, ("boolean", "")
+          typeof<float>, ("float", "float32")
+          typeof<float32>, ("float", "float32")
+          typeof<uint8>, ("integer", "int8")
+          typeof<uint16>, ("integer", "int16")
+          typeof<uint32>, ("integer", "int32")
+          typeof<uint64>, ("integer", "int64")
+          typeof<DateTime>, ("string", "date-time")
+          typeof<byte array>, ("string", "binary")
+          typeof<byte list>, ("string", "binary")
+          typeof<byte seq>, ("string", "binary")
+          typeof<byte>, ("string", "byte")
+        ] |> dict
 
-    type Type with
-      member this.FormatAndName
-        with get () = 
-          match this with
-          | _ when TypeHelpers.typeFormatsNames.ContainsKey this -> 
-            Some (TypeHelpers.typeFormatsNames.Item this)
-          | _ when this.IsPrimitive ->
-            Some (TypeHelpers.typeFormatsNames.Item (typeof<string>))
-          | _ -> None
+    let getEnumeratedType (t: Type) = 
+      t.GetInterfaces() 
+      |> Seq.filter(fun i -> 
+        i.IsGenericType && i.GetGenericTypeDefinition() = typedefof<IEnumerable<_>>)
+      |> Seq.tryHead
+      |> Option.map(fun ie -> ie.GetGenericArguments().[0])
 
-      member this.Describes() : ObjectDefinition =
-        let props = 
-          this.GetProperties()
-          |> Seq.map (
-              fun p -> 
-                match p.PropertyType.FormatAndName with
-                | Some (ty,na) -> p.Name, Primitive(ty,na)
-                | None -> 
-                    p.Name, Ref(p.PropertyType.Describes())
-          ) |> dict
-        {Id=this.Name; Properties=props}
+    let getOptionalType (t: Type) =
+      match t.IsGenericType with
+      | true ->
+        let genericTypeDef = t.GetGenericTypeDefinition()
+        match genericTypeDef = typedefof<Option<_>> || genericTypeDef = typedefof<System.Nullable<_>> with
+        | true -> t.GetGenericArguments().[0] |> Some    
+        | false -> None
+      | false -> None 
+
+    let getChildTypes (t: Type) = 
+      let rec innerChildTypes (unprocessedTypes : Type list) (processedTypes : Type list) = 
+        match unprocessedTypes with
+        | [] -> processedTypes
+        | x :: xs -> 
+          let consideredType = 
+            match getEnumeratedType x with
+            | None -> x
+            | Some t -> t
+          let xProps = consideredType.GetProperties() |> Array.map(fun p -> p.PropertyType) |> List.ofArray
+          let newProcessed = consideredType :: processedTypes
+          let newUnProcessed = xs |> List.append xProps |> List.except newProcessed
+          innerChildTypes newUnProcessed newProcessed 
+      innerChildTypes [t] []
+
+  type Type with
+    member this.GetEnumeratedType
+      with get () = TypeHelpers.getEnumeratedType this
+      
+    member this.IsEnumerable
+      with get() = this.GetEnumeratedType |> Option.isSome  
+      
+    member this.GetOptionalType
+      with get() = TypeHelpers.getOptionalType this
+
+    member this.FormatAndName
+      with get () = 
+        match this with
+        | _ when TypeHelpers.typeFormatsNames.ContainsKey this -> 
+          Some (TypeHelpers.typeFormatsNames.Item this)
+        | _ when this.IsPrimitive ->
+          Some (TypeHelpers.typeFormatsNames.Item (typeof<string>)) 
+        | _ -> None
+
+    member this.AsPropertyDefinition 
+      with get() =
+        match this with
+        | _ when TypeHelpers.typeFormatsNames.ContainsKey this -> 
+          Primitive(TypeHelpers.typeFormatsNames.[this])
+        | _ -> 
+          match this.GetOptionalType with
+          | Some o -> Maybe(o.AsPropertyDefinition)
+          | None -> 
+            match this.GetEnumeratedType with
+            | Some t -> Array(t.AsPropertyDefinition)
+            | None -> Ref(this.Describes())
+
+    member this.Describes() : ObjectDefinition =
+      let pT = 
+        match this.GetOptionalType with
+        | Some ot -> ot
+        | None -> this
+
+      let typeName = 
+        pT.GetCustomAttributes(typeof<SwaggerTypeAttribute>, false)
+        |> Seq.cast<SwaggerTypeAttribute>
+        |> Seq.map(fun a -> a.Name)
+        |> Seq.tryHead
+        |> fun o -> match o with | Some n -> n | None -> pT.Name
+
+      let props = 
+        pT.GetProperties()
+        |> Seq.map (fun p -> 
+          p.Name, p.PropertyType.AsPropertyDefinition) |> dict
+      {Id=typeName; Properties=props}
 
 
   let findInZip (zip:ZipInputStream) (f:ZipEntry -> bool) =
@@ -515,7 +588,9 @@ module Swagger =
 
         for m in __.Models do
           let d = m.Describes()
-          definitions.Add(d.Id, d)
+
+          if definitions.ContainsKey d.Id then ()
+          else definitions.Add(d.Id, d)
 
         let paths =
           docs
