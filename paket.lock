@@ -2,6 +2,10 @@ NUGET
   remote: https://www.nuget.org/api/v2
     FAKE (4.46.1)
     FSharp.Core (4.0.0.1)
+    FSharp.Data (2.3.2)
+      Zlib.Portable (>= 1.11) - framework: >= netstandard11, portable-net45+sl5+win8, portable-net45+win8, portable-net45+win8+wp8+wpa81
+    Fuchu (1.0.3)
+      FSharp.Core (>= 3.1.2.1)
     Microsoft.CSharp (4.3) - framework: >= netstandard10
       System.Collections (>= 4.3) - framework: dnxcore50, >= netstandard13
       System.Diagnostics.Debug (>= 4.3) - framework: dnxcore50, >= netstandard13
@@ -44,6 +48,7 @@ NUGET
       System.Threading.Tasks (>= 4.0.11) - framework: >= netstandard10
       System.Xml.ReaderWriter (>= 4.0.11) - framework: >= netstandard10
       System.Xml.XDocument (>= 4.0.11) - framework: >= netstandard10
+    NLog (4.3.11)
     SharpZipLib (0.86)
     Suave (1.1.3)
       FSharp.Core (>= 3.1.2.5)
@@ -52,6 +57,9 @@ NUGET
       Newtonsoft.Json
       SharpZipLib
       Suave
+    SwaggerProvider (0.5.6)
+      Newtonsoft.Json (>= 9.0.1)
+      YamlDotNet (>= 3.9)
     System.Collections (4.3) - framework: >= netstandard10
       Microsoft.NETCore.Platforms (>= 1.1) - framework: dnxcore50, netstandard10, >= netstandard13
       Microsoft.NETCore.Targets (>= 1.1) - framework: dnxcore50, netstandard10, >= netstandard13
@@ -246,9 +254,15 @@ NUGET
       System.Text.Encoding (>= 4.3) - framework: dnxcore50, >= netstandard13
       System.Threading (>= 4.3) - framework: dnxcore50, >= netstandard13
       System.Xml.ReaderWriter (>= 4.3) - framework: dnxcore50, netstandard10, >= netstandard13
+    Unquote (3.1.2)
+    YamlDotNet (4.0)
+    Zlib.Portable (1.11) - framework: >= netstandard11, portable-net45+sl5+win8, portable-net45+win8, portable-net45+win8+wp8+wpa81
 GIST
   remote: lawrencetaylor/83b628466ac9a2cf77c22efff7d2be90
     compile.fs (1b67d7f26c900c5e0942ca0269e1486c4ce678ea)
 GITHUB
-  remote: lawrencetaylor/Suave.Swagger
-    src/Suave.Swagger/FunnyDsl.fs (f5638ffebcbd04b9a66b368757c7c37402712dbc)
+  remote: lawrencetaylor/FSharpHelpers
+    FSharp.CoreEx/Async.fs (6554fa8c4493a0eb1640555c397e639c575a6660)
+    FSharp.CoreEx/Json.fs (6554fa8c4493a0eb1640555c397e639c575a6660)
+    FSharp.CoreEx/Result.fs (6554fa8c4493a0eb1640555c397e639c575a6660)
+    FSharp.CoreEx/Suave.fs (6554fa8c4493a0eb1640555c397e639c575a6660)

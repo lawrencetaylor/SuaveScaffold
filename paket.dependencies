@@ -1,7 +1,18 @@
 source https://www.nuget.org/api/v2
 
+nuget FSharp.Data
 nuget Fake
+nuget Fuchu
 nuget Suave
 nuget Suave.Swagger
+nuget SwaggerProvider
+nuget Newtonsoft.Json
+nuget NLog
+nuget Unquote
 
 gist lawrencetaylor/83b628466ac9a2cf77c22efff7d2be90 compile.fs
+
+github lawrencetaylor/FSharpHelpers FSharp.CoreEx/Async.fs
+github lawrencetaylor/FSharpHelpers FSharp.CoreEx/Result.fs
+github lawrencetaylor/FSharpHelpers FSharp.CoreEx/Json.fs
+github lawrencetaylor/FSharpHelpers FSharp.CoreEx/Suave.fs

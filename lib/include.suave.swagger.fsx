@@ -1,0 +1,5 @@
+#r "../git-subtrees/lawrencetaylor/suave.swagger/bin/Suave.Swagger/Suave.Swagger.dll"
+#r "../git-subtrees/lawrencetaylor/suave.swagger/bin/Suave.Swagger/Suave.dll"
+#r "../git-subtrees/lawrencetaylor/suave.swagger/bin/Suave.Swagger/Newtonsoft.Json.dll"
+#r "../git-subtrees/lawrencetaylor/suave.swagger/bin/Suave.Swagger/ICSharpCode.SharpZipLib.dll"
+printfn "suave.swagger Loaded" 
