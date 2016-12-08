@@ -49,3 +49,13 @@ module Result
         let! x = xA 
         return Ok x}
     | Error e -> async { return Error e}
+
+  let traverse sa = 
+
+    let rec innerTraverse sOfR current = 
+      match sOfR |> Seq.tryHead with
+      | None -> Ok current
+      | Some (Ok x) -> innerTraverse (Seq.tail sOfR) (current |> Seq.append [x])
+      | Some (Error e) -> Error e
+
+    innerTraverse sa Seq.empty

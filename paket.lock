@@ -262,7 +262,7 @@ GIST
     compile.fs (1b67d7f26c900c5e0942ca0269e1486c4ce678ea)
 GITHUB
   remote: lawrencetaylor/FSharpHelpers
-    FSharp.CoreEx/Async.fs (6554fa8c4493a0eb1640555c397e639c575a6660)
-    FSharp.CoreEx/Json.fs (6554fa8c4493a0eb1640555c397e639c575a6660)
-    FSharp.CoreEx/Result.fs (6554fa8c4493a0eb1640555c397e639c575a6660)
-    FSharp.CoreEx/Suave.fs (6554fa8c4493a0eb1640555c397e639c575a6660)
+    FSharp.CoreEx/Async.fs (134fbe56f01056ede63bf08de18c2a0c4f9636f7)
+    FSharp.CoreEx/Json.fs (134fbe56f01056ede63bf08de18c2a0c4f9636f7)
+    FSharp.CoreEx/Result.fs (134fbe56f01056ede63bf08de18c2a0c4f9636f7)
+    FSharp.CoreEx/Suave.fs (134fbe56f01056ede63bf08de18c2a0c4f9636f7)
