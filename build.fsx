@@ -136,6 +136,7 @@ module Test =
 
 Target "WatchMode" (fun _ -> 
   Server.buildAndRun() 
+  Async.sleepForSeconds 2 |> Async.RunSynchronously
   Test.runAllTests()
   let sources = 
     { BaseDirectory = sourceDir </> "src/Server"
