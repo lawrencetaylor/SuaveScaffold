@@ -1,0 +1,7 @@
+#load @"include.system.reflection.fsx" 
+#load @"include.system.reflection.primitives.fsx" 
+#load @"include.system.runtime.fsx" 
+#load @"include.system.runtime.handles.fsx" 
+#r "System" 
+#r "System.Core" 
+printfn "system.runtime.interopservices Loaded" 

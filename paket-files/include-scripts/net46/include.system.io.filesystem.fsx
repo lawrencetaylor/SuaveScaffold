@@ -1,0 +1,8 @@
+#load @"include.system.io.fsx" 
+#load @"include.system.io.filesystem.primitives.fsx" 
+#load @"include.system.runtime.fsx" 
+#load @"include.system.runtime.handles.fsx" 
+#load @"include.system.text.encoding.fsx" 
+#load @"include.system.threading.tasks.fsx" 
+#r "../../../packages/System.IO.FileSystem/ref/net46/System.IO.FileSystem.dll" 
+printfn "system.io.filesystem Loaded" 

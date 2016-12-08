@@ -1,0 +1,5 @@
+#load @"include.system.collections.fsx" 
+#load @"include.system.runtime.fsx" 
+#load @"include.system.threading.tasks.fsx" 
+#r "../../../packages/System.Threading.Tasks.Extensions/lib/netstandard1.0/System.Threading.Tasks.Extensions.dll" 
+printfn "system.threading.tasks.extensions Loaded" 

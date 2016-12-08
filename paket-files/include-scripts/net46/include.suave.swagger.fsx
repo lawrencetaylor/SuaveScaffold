@@ -1,0 +1,6 @@
+#load @"include.newtonsoft.json.fsx" 
+#load @"include.sharpziplib.fsx" 
+#load @"include.suave.fsx" 
+#r "System.Xml" 
+#r "../../../packages/Suave.Swagger/lib/Suave.Swagger.dll" 
+printfn "suave.swagger Loaded" 

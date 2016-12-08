@@ -1,0 +1,5 @@
+#load @"include.system.resources.resourcemanager.fsx" 
+#load @"include.system.runtime.fsx" 
+#r "System.Runtime.Serialization" 
+#r "../../../packages/System.Runtime.Serialization.Primitives/ref/net46/System.Runtime.Serialization.Primitives.dll" 
+printfn "system.runtime.serialization.primitives Loaded" 
